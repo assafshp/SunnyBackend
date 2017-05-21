@@ -32,10 +32,10 @@ public class AppLoader implements ApplicationListener<ContextRefreshedEvent> {
     public void onApplicationEvent(ContextRefreshedEvent event) {
         //load admin
         loadFirebaseAdminOptions();
+    }
 
 
     private void loadFirebaseAdminOptions() {
-
         FileInputStream serviceAccount = null;
         try {
             serviceAccount = new FileInputStream("./src/main/resources/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json");
