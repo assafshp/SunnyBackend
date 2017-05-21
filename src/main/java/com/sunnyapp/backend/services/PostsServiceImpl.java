@@ -8,7 +8,7 @@ import com.google.firebase.database.*;
 import com.google.firebase.internal.NonNull;
 import com.google.firebase.tasks.OnCompleteListener;
 import com.google.firebase.tasks.Task;
-import com.sunnyapp.backend.bootstrap.ProductLoader;
+import com.sunnyapp.backend.bootstrap.AppLoader;
 import com.sunnyapp.backend.domain.PostWrapper;
 import com.sunnyapp.backend.utils.FirebaseUtil;
 import com.sunnyapp.backend.domain.FirePost;
@@ -26,7 +26,7 @@ import java.util.*;
 @EnableScheduling
 public class PostsServiceImpl implements PostsService {
 
-    private Logger log = Logger.getLogger(ProductLoader.class);
+    private Logger log = Logger.getLogger(AppLoader.class);
     private long MILLI_SECONDS_IN_HOUR = 3600000;
     @Autowired
     private Storage storage;
