@@ -1,3 +1,3 @@
 # Spring Boot Web Application
 
-Sunny app
+Sunny app backend

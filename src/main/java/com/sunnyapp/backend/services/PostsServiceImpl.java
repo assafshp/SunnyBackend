@@ -52,7 +52,7 @@ public class PostsServiceImpl implements PostsService {
                 FirePost firePost = (FirePost) firePostWrapper.getFirePost();
                 int ttl = firePost.getTtl();
                 //if (((Long) firePost.getTimestamp() + Integer.toUnsignedLong( ttl* HOUR_IN_MILLI_SECONDS)) < CustomDateUtils.getCurrentTimestamp())
-                if (((Long) firePost.getTimestamp() + Integer.toUnsignedLong(MINUTE_IN_MILLI_SECONDS)) < CustomDateUtils.getCurrentTimestamp())
+                if (((Long) firePost.getTimestamp() + Integer.toUnsignedLong(ttl*HOUR_IN_MILLI_SECONDS)) < CustomDateUtils.getCurrentTimestamp())
                     markPostToDelete(dataSnapshot.getKey(), firePost, postDataPath);
 
             }
