@@ -30,7 +30,7 @@ public class PostsServiceImpl implements PostsService {
     private long MILLI_SECONDS_IN_HOUR = 3600000;
     @Autowired
     private Storage storage;
-    private static int HOUR_IN_MILLI_SECONDS = 60 * 60 * 1000;
+    private static int HOUR_IN_MILLI_SECONDS = 60 /** 60 * 1000*/;
     private static int MINUTE_IN_MILLI_SECONDS = 60 * 1000;
     String bucketName = "friendlypix-d292b.appspot.com";
 
@@ -39,21 +39,28 @@ public class PostsServiceImpl implements PostsService {
     ChildEventListener markPostToDeletion;
 
     @Override
-    @Scheduled(cron = "0 0 * * * *")
+    //@Scheduled(cron = "* * * * * *")
     public void startMarkPostToDeletionService() {
+        log.info("startMarkPostToDeletionService by cron expression");
         DatabaseReference databaseReference = FirebaseUtil.getPostsRef();
         markPostToDeletion = new ChildEventListener() {
 
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                log.info("check if post key : " + dataSnapshot.getKey() + " should be marked as deleted");
                 PostWrapper firePostWrapper = new PostWrapper(dataSnapshot.getKey(), dataSnapshot.getValue(FirePost.class));
                 String postDataPath = dataSnapshot.getRef().getPath().toString();
                 FirePost firePost = (FirePost) firePostWrapper.getFirePost();
                 int ttl = firePost.getTtl();
                 //if (((Long) firePost.getTimestamp() + Integer.toUnsignedLong( ttl* HOUR_IN_MILLI_SECONDS)) < CustomDateUtils.getCurrentTimestamp())
-                if (((Long) firePost.getTimestamp() + Integer.toUnsignedLong(ttl*HOUR_IN_MILLI_SECONDS)) < CustomDateUtils.getCurrentTimestamp())
+                if (((Long) firePost.getTimestamp() + Integer.toUnsignedLong(/*ttl **/ HOUR_IN_MILLI_SECONDS)) < CustomDateUtils.getCurrentTimestamp()) {
                     markPostToDelete(dataSnapshot.getKey(), firePost, postDataPath);
+                    log.info("start mark for deletion post key : " + dataSnapshot.getKey());
+                } else {
+                    log.info("post key : " + dataSnapshot.getKey() + " should not be marked as deleted");
+                }
+
 
             }
 
@@ -78,20 +85,22 @@ public class PostsServiceImpl implements PostsService {
 
             }
         };
-        databaseReference.removeEventListener(markPostToDeletion);
+        //databaseReference.removeEventListener(markPostToDeletion);
         databaseReference.addChildEventListener(markPostToDeletion);
     }
 
 
     @Override
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "* * * * * *")
     public void startDeletePostsService() {
+        log.info("startDeletePostsService by cron expression");
         DatabaseReference databaseReference = FirebaseUtil.getPostsDeletionRef();
         deletionPostListener = new ChildEventListener() {
 
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                log.info("start perform deletion of post key : " + dataSnapshot.getKey());
                 PostDeletionData deletionData = dataSnapshot.getValue(PostDeletionData.class);
                 String postKey = dataSnapshot.getKey();
                 removePostUerRef(postKey, deletionData.getUid());
