@@ -30,7 +30,8 @@ public class PostsServiceImpl implements PostsService {
     private long MILLI_SECONDS_IN_HOUR = 3600000;
     @Autowired
     private Storage storage;
-    private static int HOUR_IN_MILLI_SECONDS = 60 /** 60 * 1000*/;
+    private static int HOUR_IN_MILLI_SECONDS = 60 * 60 * 1000;
+    ;
     private static int MINUTE_IN_MILLI_SECONDS = 60 * 1000;
     String bucketName = "friendlypix-d292b.appspot.com";
 
@@ -39,7 +40,7 @@ public class PostsServiceImpl implements PostsService {
     ChildEventListener markPostToDeletion;
 
     @Override
-    //@Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void startMarkPostToDeletionService() {
         log.info("startMarkPostToDeletionService by cron expression");
         DatabaseReference databaseReference = FirebaseUtil.getPostsRef();
@@ -60,7 +61,6 @@ public class PostsServiceImpl implements PostsService {
                 } else {
                     log.info("post key : " + dataSnapshot.getKey() + " should not be marked as deleted");
                 }
-
 
             }
 
@@ -85,13 +85,13 @@ public class PostsServiceImpl implements PostsService {
 
             }
         };
-        //databaseReference.removeEventListener(markPostToDeletion);
+        databaseReference.removeEventListener(markPostToDeletion);
         databaseReference.addChildEventListener(markPostToDeletion);
     }
 
 
     @Override
-    @Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void startDeletePostsService() {
         log.info("startDeletePostsService by cron expression");
         DatabaseReference databaseReference = FirebaseUtil.getPostsDeletionRef();

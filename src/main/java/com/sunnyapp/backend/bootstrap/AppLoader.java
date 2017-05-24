@@ -40,32 +40,17 @@ public class AppLoader implements ApplicationListener<ContextRefreshedEvent> {
         loadFirebaseAdminOptions();
     }
 
-    public InputStream getResource(String fileName) {
-        ClassLoader cl = this.getClass().getClassLoader();
-        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-        try {
-            return resolver.getResources("classpath*:/" + fileName)[0].getInputStream();
-        } catch (IOException e) {
-            log.error("cant load " + fileName);
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 
     private void loadFirebaseAdminOptions() {
         InputStream serviceAccount = null;
-        InputStream serviceAccount1 = null;
 
-        // serviceAccount = getResource("friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json");
-        // try {
         try {
-            //serviceAccount = new FileInputStream("./src/main/resources/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json");
-            // serviceAccount = new FileInputStream(new File(System.getProperty("user.home")+"/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json"));
+            log.info("is firecred exits : "+firebaseCred.getCredFile().exists());
             serviceAccount = new FileInputStream(firebaseCred.getCredFile());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        //serviceAccount = getResource("friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json");
 
 
         FirebaseOptions options = new FirebaseOptions.Builder()
@@ -74,32 +59,7 @@ public class AppLoader implements ApplicationListener<ContextRefreshedEvent> {
                 .build();
 
         FirebaseApp.initializeApp(options);
-        postsService.startMarkPostToDeletionService();
+        //postsService.startMarkPostToDeletionService();
 
-      /*  FirebaseOptions options = null;
-        try {
-            options = new FirebaseOptions.Builder()
-                    .setServiceAccount(
-                            new FileInputStream("./src/main/resources/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json"))
-                    .setDatabaseUrl("https://friendlypix-d292b.firebaseio.com")
-                    .build();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        FirebaseApp.initializeApp(options);*/
     }
-
-   /* private InputStream getResource(String fileName) {
-        ClassLoader cl = this.getClass().getClassLoader();
-        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-        try {
-            return resolver.getResources("classpath*:/" + fileName)[0].getInputStream();
-        } catch (IOException e) {
-            log.error("cant load " + fileName);
-            e.printStackTrace();
-        }
-        return null;
-    }*/
-
 }
