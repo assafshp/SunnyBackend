@@ -13,7 +13,7 @@ admin.initializeApp(functions.config().firebase);
 // Listens for new messages added to /messages/:pushId/original and creates an
 // uppercase version of the message to /messages/:pushId/uppercase
 //exports.makeUppercase = functions.database.ref('/messages/{pushId}/original')
-exports.makeUppercase = functions.database.ref('/posts/{pushId}/text')
+/*exports.makeUppercase = functions.database.ref('/posts/{pushId}/text')
         .onWrite(event => {
         // Grab the current value of what was written to the Realtime Database.
         const text = event.data.val();
@@ -25,13 +25,13 @@ const uppercase = text.toUpperCase();
 return 'foo';
 //event.data.ref.parent.child('uppercase').set(uppercase);
 })
-;
+;*/
 
 
 
-exports.followersCount = functions.database.ref("followers/{userId}/followers/").onWrite((event) => {
+exports.followersCount = functions.database.ref("followers/{userId}/followers/{followersId}").onWrite((event) => {
         var collectionRef = event.data.ref.parent;
-var countRef = collectionRef.child('followers_count');
+var countRef = collectionRef.parent.child('followers_count');
 
 return countRef.transaction(function (current) {
     if (event.data.exists() && !event.data.previous.exists()) {
@@ -43,9 +43,9 @@ return countRef.transaction(function (current) {
 });
 });
 
-exports.followingsCount = functions.database.ref("followers/{userId}/following/").onWrite((event) => {
+exports.followingsCount = functions.database.ref("followers/{userId}/following/{followingId}").onWrite((event) => {
         var collectionRef = event.data.ref.parent;
-var countRef = collectionRef.child('following_count');
+var countRef = collectionRef.parent.child('following_count');
 
 return countRef.transaction(function (current) {
     if (event.data.exists() && !event.data.previous.exists()) {
