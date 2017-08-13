@@ -204,7 +204,7 @@ public class PostsServiceImpl implements PostsService {
         Page<Blob> blobPage = storage.list(bucketName, Storage.BlobListOption.prefix(baseStoragePath));
         List<BlobId> blobIdList = new LinkedList<>();
         for (Blob blob : blobPage.iterateAll()) {
-            blobIdList.add(blob.getBlobId());
+            blobIdList.add(blob.getBlobId()); //todo remove
             storage.delete(blob.getBlobId());
         }
         blobIdList.size();
