@@ -89,10 +89,37 @@ var loadServiceAccountPath = function(firebaseCredResults) {
     });
     return promise;
 };
-var uploadProfileImages = function(someStuff) {
+var uploadProfileImagesFull = function(someStuff) {
     var uploadFiles= new Promise(function(resolve, reject){
-        var profileImageFirebaseRef = firebase.database().ref('app_configuration');
-        fs.readdirSync(profileImagesLocalPath).forEach(file => {
+        var appConfigurationRef = firebase.database().ref('app_configuration');
+        var profileImageFirebaseRef = appConfigurationRef.child('profileImages');
+        var fullImagesPath = profileImagesLocalPath+'full/';
+        fs.readdirSync(fullImagesPath ).forEach(file => {
+            console.log('profileIamge detected :'+file);
+        bucket.upload(fullImagesPath +file, function(err, uploadedFile) {
+            if (err)
+                throw new Error(err);
+            else{
+                uploadedFile.getSignedUrl({
+                    action: 'read',
+                    expires: '03-09-2491'
+                }).then(signedUrls => {
+                    var fileIndex = file;
+                    var signedUrlFull= signedUrls[0];
+                   // resolve(signedUrlFull);
+            })
+
+        }
+    });
+    });
+    return uploadFiles;
+})};
+
+var uploadProfileImagesThumb = function(signedUrlFull) {
+    var uploadFiles= new Promise(function(resolve, reject){
+        var appConfigurationRef = firebase.database().ref('app_configuration');
+        var profileImageFirebaseRef = appConfigurationRef.child('profileImages');
+      /*  fs.readdirSync(profileImagesLocalPath).forEach(file => {
             console.log('profileIamge detected :'+file);
         bucket.upload(profileImagesLocalPath+file, function(err, uploadedFile) {
             if (err)
@@ -103,35 +130,41 @@ var uploadProfileImages = function(someStuff) {
                     expires: '03-09-2491'
                 }).then(signedUrls => {
                     var fileIndex = file;
-                    var signedUrl= signedUrls[0];
-                     console.log(signedUrls[0])// contains the file's public URL
-                var newProfileImageRef = profileImageFirebaseRef.push();
-                newProfileImageRef.update({
-                    imageId : fileIndex,
-                    url: signedUrl
-                }),function (err) {
-                   if(err){
-                       console.log("can't update firebase about new image profile loaded ")
-                       reject("reject");
-
-                   }
-                   else{
-                        resolve("success");
-                   }
-                }
-
-                });
+                var signedUrlThumb= signedUrls[0];
+                console.log(signedUrls[0])// contains the file's public URL
+                updateFirebaseDB(signedUrlFull,signedUrlThumb);
             }
 
         });
-    })
+    });*/
     });
     return uploadFiles;
 };
 
+
+function updateFirebaseDB(signedUrlFull,signedUrlThumb){
+    var newProfileImageRef = profileImageFirebaseRef.push();
+    newProfileImageRef.update({
+        imageId : fileIndex,
+        url_full: signedUrlFull,
+        url_thumb: signedUrlThumb
+    },function (err) {
+        if(err){
+            console.log("can't update firebase about new image profile loaded ")
+            reject("reject");
+
+        }
+        else{
+            resolve("success");
+        }
+    })
+}
+
+
 buildServiceAccountPath()
     .then(loadServiceAccountPath)
-    .then(uploadProfileImages);
+    .then(uploadProfileImagesFull);
+    //.then(uploadProfileImagesThumb);
 return;
 
 
