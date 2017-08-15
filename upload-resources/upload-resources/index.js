@@ -76,7 +76,7 @@ var loadServiceAccountPath = function(firebaseCredResults) {
         //is fire loaded? if not stop the process
         if(firebase.apps.length ) {
             console.log("firebase loaded");
-            resolve()
+            resolve("foo")
         }
         else {
             console.log("failed to load firebase");
@@ -91,12 +91,18 @@ var loadServiceAccountPath = function(firebaseCredResults) {
 };
 var uploadProfileImagesFull = function(someStuff) {
     var uploadFiles= new Promise(function(resolve, reject){
-        var appConfigurationRef = firebase.database().ref('app_configuration');
-        var profileImageFirebaseRef = appConfigurationRef.child('profileImages');
+
+
         var fullImagesPath = profileImagesLocalPath+'full/';
         fs.readdirSync(fullImagesPath ).forEach(file => {
-            console.log('profileIamge detected :'+file);
-        bucket.upload(fullImagesPath +file, function(err, uploadedFile) {
+            console.log('profileIamge full detected :'+file);
+        //https://googlecloudplatform.github.io/google-cloud-node/#/docs/storage/0.8.0/storage/bucket?method=upload
+        var options = {
+            destination: fullImagesPath+file,
+
+        };
+        bucket.upload(fullImagesPath +file,options, function(err, uploadedFile) {
+
             if (err)
                 throw new Error(err);
             else{
@@ -105,23 +111,45 @@ var uploadProfileImagesFull = function(someStuff) {
                     expires: '03-09-2491'
                 }).then(signedUrls => {
                     var fileIndex = file;
-                    var signedUrlFull= signedUrls[0];
-                   // resolve(signedUrlFull);
-            })
+                var signedUrlFull= signedUrls[0];
+                uploadProfileImagesThumb({file:file ,
+                        signedUrlFull:signedUrlFull});
+            });
 
         }
     });
     });
+})
     return uploadFiles;
-})};
 
-var uploadProfileImagesThumb = function(signedUrlFull) {
-    var uploadFiles= new Promise(function(resolve, reject){
-        var appConfigurationRef = firebase.database().ref('app_configuration');
-        var profileImageFirebaseRef = appConfigurationRef.child('profileImages');
-      /*  fs.readdirSync(profileImagesLocalPath).forEach(file => {
-            console.log('profileIamge detected :'+file);
-        bucket.upload(profileImagesLocalPath+file, function(err, uploadedFile) {
+}
+
+/*
+var options = {
+    destination: 'new-image.png',
+    resumable: true,
+    validation: 'crc32c',
+    metadata: {
+        metadata: {
+            event: 'Fall trip to the zoo'
+        }
+    }
+};*/
+
+var uploadProfileImagesThumb = function(object) {
+   // var uploadFiles= new Promise(function(resolve, reject){
+
+
+        var thumbImagesPath = profileImagesLocalPath+'thumb/';
+       // fs.readdirSync(thumbImagesPath).forEach(file => {
+            //console.log('profileIamge thumb detected :'+file);
+        var fileToUpload = object.file;
+        var options = {
+            destination: thumbImagesPath+fileToUpload ,
+
+        };
+        bucket.upload(thumbImagesPath +fileToUpload ,options, function(err, uploadedFile) {
+
             if (err)
                 throw new Error(err);
             else{
@@ -129,41 +157,55 @@ var uploadProfileImagesThumb = function(signedUrlFull) {
                     action: 'read',
                     expires: '03-09-2491'
                 }).then(signedUrls => {
-                    var fileIndex = file;
+                    var fileIndex = fileToUpload ;
                 var signedUrlThumb= signedUrls[0];
-                console.log(signedUrls[0])// contains the file's public URL
-                updateFirebaseDB(signedUrlFull,signedUrlThumb);
+                object.file=fileToUpload;
+                object.signedUrlThumb=signedUrlThumb;
+                updateFirebaseDB(object);
+                //resolve(object);
+            });
+
             }
-
         });
-    });*/
-    });
-    return uploadFiles;
-};
+    //});
+   // })
+    //return uploadFiles;
+
+}
 
 
-function updateFirebaseDB(signedUrlFull,signedUrlThumb){
-    var newProfileImageRef = profileImageFirebaseRef.push();
-    newProfileImageRef.update({
-        imageId : fileIndex,
-        url_full: signedUrlFull,
-        url_thumb: signedUrlThumb
-    },function (err) {
+
+
+
+
+function updateFirebaseDB(object){
+    var appConfigurationRef = firebase.database().ref('app_configuration');
+    var profileImageFirebaseRef = appConfigurationRef.child('profileImages');
+    var firebaseUpdate = profileImageFirebaseRef.push();
+    var update = {
+        'file' : object.file,
+        'signedUrlThumb' : object.signedUrlThumb,
+        'signedUrlFull' : object.signedUrlFull
+    };
+    console.log(update);
+    firebaseUpdate.update(update,function (err) {
         if(err){
             console.log("can't update firebase about new image profile loaded ")
-            reject("reject");
 
         }
         else{
-            resolve("success");
+            console.log("success to update firebase about new image profile loaded ")
         }
-    })
+    });
+
 }
 
 
 buildServiceAccountPath()
     .then(loadServiceAccountPath)
     .then(uploadProfileImagesFull);
+   // .then(uploadProfileImagesThumb);
+
     //.then(uploadProfileImagesThumb);
 return;
 
