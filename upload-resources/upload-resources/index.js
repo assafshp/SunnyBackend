@@ -36,7 +36,7 @@ const Storage = require('@google-cloud/storage');
 var gcs ;//
 var bucket;//
 const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';//config.get('CLOUD_BUCKET');
-var profileImagesLocalPath = 'profileImages/';
+var profileImagesLocalPath = 'profile_images/';
 
 
 
@@ -94,11 +94,14 @@ var uploadProfileImagesFull = function(someStuff) {
 
 
         var fullImagesPath = profileImagesLocalPath+'full/';
+
+
         fs.readdirSync(fullImagesPath ).forEach(file => {
             console.log('profileIamge full detected :'+file);
         //https://googlecloudplatform.github.io/google-cloud-node/#/docs/storage/0.8.0/storage/bucket?method=upload
+        var destInStorage =  fullImagesPath+file;
         var options = {
-            destination: fullImagesPath+file,
+            destination: destInStorage ,
 
         };
         bucket.upload(fullImagesPath +file,options, function(err, uploadedFile) {
@@ -113,7 +116,9 @@ var uploadProfileImagesFull = function(someStuff) {
                     var fileIndex = file;
                 var signedUrlFull= signedUrls[0];
                 uploadProfileImagesThumb({file:file ,
-                        signedUrlFull:signedUrlFull});
+                        signedUrlFull:signedUrlFull,
+                    destInStorageFull:destInStorage
+                });
             });
 
         }
@@ -144,8 +149,9 @@ var uploadProfileImagesThumb = function(object) {
        // fs.readdirSync(thumbImagesPath).forEach(file => {
             //console.log('profileIamge thumb detected :'+file);
         var fileToUpload = object.file;
-        var options = {
-            destination: thumbImagesPath+fileToUpload ,
+    var destInStorage =  thumbImagesPath+fileToUpload;
+    var options = {
+            destination: destInStorage ,
 
         };
         bucket.upload(thumbImagesPath +fileToUpload ,options, function(err, uploadedFile) {
@@ -161,6 +167,7 @@ var uploadProfileImagesThumb = function(object) {
                 var signedUrlThumb= signedUrls[0];
                 object.file=fileToUpload;
                 object.signedUrlThumb=signedUrlThumb;
+                object.destInStorageThumb=destInStorage;
                 updateFirebaseDB(object);
                 //resolve(object);
             });
@@ -180,12 +187,14 @@ var uploadProfileImagesThumb = function(object) {
 
 function updateFirebaseDB(object){
     var appConfigurationRef = firebase.database().ref('app_configuration');
-    var profileImageFirebaseRef = appConfigurationRef.child('profileImages');
+    var profileImageFirebaseRef = appConfigurationRef.child('profile_images');
     var firebaseUpdate = profileImageFirebaseRef.push();
     var update = {
         'file' : object.file,
         'signedUrlThumb' : object.signedUrlThumb,
-        'signedUrlFull' : object.signedUrlFull
+        'signedUrlFull' : object.signedUrlFull,
+        'destInStorageFull' : object.destInStorageThumb,
+        'destInStorageThumb' : object.destInStorageFull
     };
     console.log(update);
     firebaseUpdate.update(update,function (err) {
