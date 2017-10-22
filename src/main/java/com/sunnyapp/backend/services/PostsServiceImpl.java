@@ -40,7 +40,7 @@ public class PostsServiceImpl implements PostsService {
     ChildEventListener markPostToDeletion;
 
     @Override
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void startMarkPostToDeletionService() {
         log.info("startMarkPostToDeletionService by cron expression");
         DatabaseReference databaseReference = FirebaseUtil.getPostsRef();
@@ -91,7 +91,7 @@ public class PostsServiceImpl implements PostsService {
 
 
     @Override
-    @Scheduled(cron = "0 0 * * * *")
+   // @Scheduled(cron = "0 * * * * *")
     public void startDeletePostsService() {
         log.info("startDeletePostsService by cron expression");
         DatabaseReference databaseReference = FirebaseUtil.getPostsDeletionRef();

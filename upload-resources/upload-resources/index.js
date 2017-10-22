@@ -218,12 +218,13 @@ buildServiceAccountPath()
     //.then(uploadProfileImagesThumb);
 return;
 
+/*
 
 let myFirstPromise = new Promise((resolve, reject) => {
         // We call resolve(...) when what we were doing made async successful, and reject(...) when it failed.
         // In this example, we use setTimeout(...) to simulate async code.
         // In reality, you will probably be using something like XHR or an HTML5 API.
-
+        fs.readFileSync(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'));
         fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8', function (err, data) {
         if (err) {
             reject(console.log(err));
@@ -252,7 +253,7 @@ let mySecondPromise = new Promise((resolve, reject) => {
 ;
 })
 ;
-/*
+/!*
 let loadFirebasePromise = new Promise((resolve, reject) => {
         if (!firebase.apps.length) {
     firebase.initializeApp({
@@ -261,7 +262,7 @@ let loadFirebasePromise = new Promise((resolve, reject) => {
     });
 };
 })
-;*/
+;*!/
 
 myFirstPromise.then((successMessage) => {
     // successMessage is whatever we passed in the resolve(...) function above.
@@ -295,13 +296,13 @@ timeout(2);
 return;
 
 var readCred = fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8');
-/*var readCred = fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8', function (err, data) {
+/!*var readCred = fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8', function (err, data) {
  if (err) {
  return console.log(err);
  }
  console.log(data);
  return data;
- });*/
+ });*!/
 
 Promise.resolve(readCred).then(function (value) {
     console.log(value); // "Success"
@@ -371,9 +372,9 @@ Promise.all([topPostsRef.once('value'), allUserRef.once('value')]).then(function
     console.log('Failed to start weekly top posts emailer:', error);
 });
 
-/**
+/!**
  * Send the new star notification email to the given email.
- */
+ *!/
 function sendNotificationEmail(email) {
     var mailOptions = {
         from: '"Firebase Database Quickstart" <noreply@firebase.com>',
@@ -386,9 +387,9 @@ function sendNotificationEmail(email) {
     });
 }
 
-/**
+/!**
  * Update the star count.
- */
+ *!/
 // [START post_stars_transaction]
 function updateStarCount(postRef) {
     postRef.transaction(function (post) {
@@ -400,9 +401,9 @@ function updateStarCount(postRef) {
 }
 // [END post_stars_transaction]
 
-/**
+/!**
  * Keep the likes count updated and send email notifications for new likes.
- */
+ *!/
 function startListeners() {
     firebase.database().ref('/posts').on('child_added', function (postSnapshot) {
         var postReference = postSnapshot.ref;
@@ -435,3 +436,4 @@ function startListeners() {
 
 // Start the server.
 startListeners();
+*/
