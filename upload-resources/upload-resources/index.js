@@ -36,7 +36,7 @@ const Storage = require('@google-cloud/storage');
 var gcs ;//
 var bucket;//
 const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';//config.get('CLOUD_BUCKET');
-var profileImagesLocalPath = 'profileImages/';
+var profileImagesLocalPath = 'profile_images/';
 
 
 
@@ -76,7 +76,7 @@ var loadServiceAccountPath = function(firebaseCredResults) {
         //is fire loaded? if not stop the process
         if(firebase.apps.length ) {
             console.log("firebase loaded");
-            resolve()
+            resolve("foo")
         }
         else {
             console.log("failed to load firebase");
@@ -89,12 +89,23 @@ var loadServiceAccountPath = function(firebaseCredResults) {
     });
     return promise;
 };
-var uploadProfileImages = function(someStuff) {
+var uploadProfileImagesFull = function(someStuff) {
     var uploadFiles= new Promise(function(resolve, reject){
-        var profileImageFirebaseRef = firebase.database().ref('app_configuration');
-        fs.readdirSync(profileImagesLocalPath).forEach(file => {
-            console.log('profileIamge detected :'+file);
-        bucket.upload(profileImagesLocalPath+file, function(err, uploadedFile) {
+
+
+        var fullImagesPath = profileImagesLocalPath+'full/';
+
+
+        fs.readdirSync(fullImagesPath ).forEach(file => {
+            console.log('profileIamge full detected :'+file);
+        //https://googlecloudplatform.github.io/google-cloud-node/#/docs/storage/0.8.0/storage/bucket?method=upload
+        var destInStorage =  fullImagesPath+file;
+        var options = {
+            destination: destInStorage ,
+
+        };
+        bucket.upload(fullImagesPath +file,options, function(err, uploadedFile) {
+
             if (err)
                 throw new Error(err);
             else{
@@ -103,43 +114,117 @@ var uploadProfileImages = function(someStuff) {
                     expires: '03-09-2491'
                 }).then(signedUrls => {
                     var fileIndex = file;
-                    var signedUrl= signedUrls[0];
-                     console.log(signedUrls[0])// contains the file's public URL
-                var newProfileImageRef = profileImageFirebaseRef.push();
-                newProfileImageRef.update({
-                    imageId : fileIndex,
-                    url: signedUrl
-                }),function (err) {
-                   if(err){
-                       console.log("can't update firebase about new image profile loaded ")
-                       reject("reject");
-
-                   }
-                   else{
-                        resolve("success");
-                   }
-                }
-
+                var signedUrlFull= signedUrls[0];
+                uploadProfileImagesThumb({file:file ,
+                        signedUrlFull:signedUrlFull,
+                    destInStorageFull:destInStorage
                 });
-            }
+            });
 
-        });
-    })
+        }
     });
+    });
+})
     return uploadFiles;
-};
+
+}
+
+/*
+var options = {
+    destination: 'new-image.png',
+    resumable: true,
+    validation: 'crc32c',
+    metadata: {
+        metadata: {
+            event: 'Fall trip to the zoo'
+        }
+    }
+};*/
+
+var uploadProfileImagesThumb = function(object) {
+   // var uploadFiles= new Promise(function(resolve, reject){
+
+
+        var thumbImagesPath = profileImagesLocalPath+'thumb/';
+       // fs.readdirSync(thumbImagesPath).forEach(file => {
+            //console.log('profileIamge thumb detected :'+file);
+        var fileToUpload = object.file;
+    var destInStorage =  thumbImagesPath+fileToUpload;
+    var options = {
+            destination: destInStorage ,
+
+        };
+        bucket.upload(thumbImagesPath +fileToUpload ,options, function(err, uploadedFile) {
+
+            if (err)
+                throw new Error(err);
+            else{
+                uploadedFile.getSignedUrl({
+                    action: 'read',
+                    expires: '03-09-2491'
+                }).then(signedUrls => {
+                    var fileIndex = fileToUpload ;
+                var signedUrlThumb= signedUrls[0];
+                object.file=fileToUpload;
+                object.signedUrlThumb=signedUrlThumb;
+                object.destInStorageThumb=destInStorage;
+                updateFirebaseDB(object);
+                //resolve(object);
+            });
+
+            }
+        });
+    //});
+   // })
+    //return uploadFiles;
+
+}
+
+
+
+
+
+
+function updateFirebaseDB(object){
+    var appConfigurationRef = firebase.database().ref('app_configuration');
+    var profileImageFirebaseRef = appConfigurationRef.child('profile_images');
+    var firebaseUpdate = profileImageFirebaseRef.push();
+    var update = {
+        'file' : object.file,
+        'signedUrlThumb' : object.signedUrlThumb,
+        'signedUrlFull' : object.signedUrlFull,
+        'destInStorageFull' : object.destInStorageThumb,
+        'destInStorageThumb' : object.destInStorageFull
+    };
+    console.log(update);
+    firebaseUpdate.update(update,function (err) {
+        if(err){
+            console.log("can't update firebase about new image profile loaded ")
+
+        }
+        else{
+            console.log("success to update firebase about new image profile loaded ")
+        }
+    });
+
+}
+
 
 buildServiceAccountPath()
     .then(loadServiceAccountPath)
-    .then(uploadProfileImages);
+    .then(uploadProfileImagesFull);
+   // .then(uploadProfileImagesThumb);
+
+    //.then(uploadProfileImagesThumb);
 return;
 
+/*
 
 let myFirstPromise = new Promise((resolve, reject) => {
         // We call resolve(...) when what we were doing made async successful, and reject(...) when it failed.
         // In this example, we use setTimeout(...) to simulate async code.
         // In reality, you will probably be using something like XHR or an HTML5 API.
-
+        fs.readFileSync(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'));
         fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8', function (err, data) {
         if (err) {
             reject(console.log(err));
@@ -168,7 +253,7 @@ let mySecondPromise = new Promise((resolve, reject) => {
 ;
 })
 ;
-/*
+/!*
 let loadFirebasePromise = new Promise((resolve, reject) => {
         if (!firebase.apps.length) {
     firebase.initializeApp({
@@ -177,7 +262,7 @@ let loadFirebasePromise = new Promise((resolve, reject) => {
     });
 };
 })
-;*/
+;*!/
 
 myFirstPromise.then((successMessage) => {
     // successMessage is whatever we passed in the resolve(...) function above.
@@ -211,13 +296,13 @@ timeout(2);
 return;
 
 var readCred = fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8');
-/*var readCred = fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8', function (err, data) {
+/!*var readCred = fs.readFile(expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json'), 'utf8', function (err, data) {
  if (err) {
  return console.log(err);
  }
  console.log(data);
  return data;
- });*/
+ });*!/
 
 Promise.resolve(readCred).then(function (value) {
     console.log(value); // "Success"
@@ -287,9 +372,9 @@ Promise.all([topPostsRef.once('value'), allUserRef.once('value')]).then(function
     console.log('Failed to start weekly top posts emailer:', error);
 });
 
-/**
+/!**
  * Send the new star notification email to the given email.
- */
+ *!/
 function sendNotificationEmail(email) {
     var mailOptions = {
         from: '"Firebase Database Quickstart" <noreply@firebase.com>',
@@ -302,9 +387,9 @@ function sendNotificationEmail(email) {
     });
 }
 
-/**
+/!**
  * Update the star count.
- */
+ *!/
 // [START post_stars_transaction]
 function updateStarCount(postRef) {
     postRef.transaction(function (post) {
@@ -316,9 +401,9 @@ function updateStarCount(postRef) {
 }
 // [END post_stars_transaction]
 
-/**
+/!**
  * Keep the likes count updated and send email notifications for new likes.
- */
+ *!/
 function startListeners() {
     firebase.database().ref('/posts').on('child_added', function (postSnapshot) {
         var postReference = postSnapshot.ref;
@@ -351,3 +436,4 @@ function startListeners() {
 
 // Start the server.
 startListeners();
+*/
