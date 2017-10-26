@@ -124,15 +124,47 @@ var scheduleDeletionPosts = function() {
 
             }
         });
+            resolve("start schedule for deletion messages")
+        });
+    });
+    return promise;
+};
+
+var scheduleDeletionMessages = function() {
+    var promise = new Promise(function(resolve, reject){
+        var db = firebase.database();
+        var ref = db.ref("/chats/messages-meta/").orderByChild("delete").equalTo(false);
+
+        cron.schedule('* * * * *', function(){
+            console.log('running a schedule every hour');
+
+            ref.on("child_added", function(snapshot, prevChildKey) {
+                var messageMeta = snapshot.val();
+
+
+                console.log("messageMeta.timestamp: " + messageMeta.timestamp + "real date : " + new Date(messageMeta.timestamp));
+                console.log("messageMeta.ttl: " + messageMeta.ttl);
+
+                if(messageMeta.timestamp + messageMeta.ttl*HOUR_IN_MILLI_SECONDS  < Date.now()){
+                    console.log("messageId: "+snapshot.key+" should be deleted");
+                    snapshot.ref.child("delete").set(true);
+                }
+                else{
+                    console.log("messagetId: "+snapshot.key+" should  not be deleted");
+
+                }
+            });
         });
     });
     return promise;
 };
 
 
+
 buildServiceAccountPath()
     .then(loadServiceAccountPath)
-    .then(scheduleDeletionPosts);
+    .then(scheduleDeletionPosts)
+    .then(scheduleDeletionMessages);
    // .then(uploadProfileImagesThumb);
 
     //.then(uploadProfileImagesThumb);
