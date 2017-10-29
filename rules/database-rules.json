@@ -19,7 +19,7 @@
       },
       "messages-meta": {
         "$id": {
-          ".write": "root.child('chats').child('conversations').child($id).child('blocked').val() != true"
+          ".write": "root.child('chats').child('conversations').child(data.child('chatId').val()).child('blocked').val() != true"
         }
       }
     }

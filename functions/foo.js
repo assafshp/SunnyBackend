@@ -1,3 +1,4 @@
+/*
 // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
 const functions = require('firebase-functions');
 
@@ -13,7 +14,7 @@ admin.initializeApp(functions.config().firebase);
 // Listens for new messages added to /messages/:pushId/original and creates an
 // uppercase version of the message to /messages/:pushId/uppercase
 //exports.makeUppercase = functions.database.ref('/messages/{pushId}/original')
-/*exports.makeUppercase = functions.database.ref('/posts/{pushId}/text')
+/!*exports.makeUppercase = functions.database.ref('/posts/{pushId}/text')
         .onWrite(event => {
         // Grab the current value of what was written to the Realtime Database.
         const text = event.data.val();
@@ -25,7 +26,7 @@ const uppercase = text.toUpperCase();
 return 'foo';
 //event.data.ref.parent.child('uppercase').set(uppercase);
 })
-;*/
+;*!/
 
 
 
@@ -60,11 +61,11 @@ exports.followingsCount = functions.database.ref("followers/{userId}/following/{
     });
 });
 
-/**
+/!**
  * requirement: when user block other user - the chat id if e//todo
  * @type {boolean}
- */
-/*
+ *!/
+/!*
 
 exports.blockchats = functions.database.ref("blocks_by_user/{userId}/{blockedUserId}").onWrite((event) => {
         //var collectionRef = event.data.ref.parent;
@@ -93,7 +94,7 @@ return blockedUserRef.set({ first: 'Ada', last: 'Lovelace' })
     }
 });*!/
 });
-*/
+*!/
 
 
 
@@ -170,7 +171,7 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
     }
     return;
     console.log("post creator userId = " + userId);
-    /* if(toDelete==null) {
+    /!* if(toDelete==null) {
          return true;
      }
      var postMetaRef = event.data.ref.parent.child("base_storage_uri_path");
@@ -188,7 +189,7 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
          }
          // `errors`:
          //    Array of errors if any occurred, otherwise null.
-     });*/
+     });*!/
 
 });
     // console.log("file path to delete : " + event.data.ref.parent.child("base_storage_uri_path").val());
@@ -198,15 +199,15 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
     //      var collectionRef = event.data.ref.parent;
 //var countRef = collectionRef.parent.child('following_count');
 
-/*return countRef.transaction(function (current) {
+/!*return countRef.transaction(function (current) {
     if (event.data.exists() && !event.data.previous.exists()) {
         return (current || 0) + 1;
     }
     else if (!event.data.exists() && event.data.previous.exists()) {
         return (current || 0) - 1;
     }
-});*/
+});*!/
 
 
 //copy line shift+alt+down arrow
-//copy line
+//copy line*/

@@ -163,7 +163,10 @@ var scheduleDeletionMessages = function() {
 
 buildServiceAccountPath()
     .then(loadServiceAccountPath)
-    .then(scheduleDeletionPosts)
+    .then(scheduleDeletionPosts);
+
+buildServiceAccountPath()
+    .then(loadServiceAccountPath)
     .then(scheduleDeletionMessages);
    // .then(uploadProfileImagesThumb);
 
