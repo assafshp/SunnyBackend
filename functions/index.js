@@ -186,6 +186,7 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
 var userId = postMetaObject.userId;
 console.log("postMetaObject : "+ JSON.stringify(postMetaObject));
 var countryCode = postMetaObject.country_code;
+var postTimestamp = postMetaObject.timestamp ;
 console.log(countryCode);
 
 var postMetaId = event.params.postMetaId;
@@ -199,10 +200,10 @@ if(userId==null){
     throw new Error('userId is not defiend ');
 }
 
-all_posts_map_ref.child(postMetaId).set(true);
-users_posts_map_ref.child(userId).child(postMetaId).set(true);
+all_posts_map_ref.child(postMetaId).child("timestamp").set(postTimestamp );
+users_posts_map_ref.child(userId).child(postMetaId).child("timestamp").set(postTimestamp );
 if(countryCode!=null){
-    country_code_map_ref.child(countryCode).child(postMetaId).set(true);
+    country_code_map_ref.child(countryCode).child(postMetaId).child("timestamp").set(postTimestamp );
 }
 console.log("post creator userId = " + userId);
 
