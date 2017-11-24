@@ -1,0 +1,60 @@
+{
+  "default": {
+    "school": [
+      "A",
+      "B"
+    ],
+    "work": [
+      "A",
+      "B"
+    ],
+    "vacation": [
+      "A",
+      "B"
+    ],
+    "sport": [
+      "A",
+      "B"
+    ],
+    "my_city": [
+      "A",
+      "B"
+    ]
+  },
+  "time": {
+    "morning": [
+      "A",
+      "B"
+    ],
+    "night": [
+      "A",
+      "B"
+    ],
+    "noon": [
+      "A",
+      "B"
+    ]
+  },
+  "local": {
+    "schools": {
+      "sch1": [
+        "A",
+        "B"
+      ],
+      "sch2": [
+        "A",
+        "B"
+      ]
+    },
+    "cities": {
+      "city1": [
+        "A",
+        "B"
+      ],
+      "city2": [
+        "A",
+        "B"
+      ]
+    }
+  }
+}

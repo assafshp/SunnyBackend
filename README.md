@@ -32,3 +32,7 @@ firebase use <alias_or_project_id>
 
 deploy all:
 firebase deploy
+
+
+rest deploy data :
+curl -X PUT -d @sunny_ask_data   'https://friendlypix-d292b.firebaseio.com/rest/sunny_ask_data.json'

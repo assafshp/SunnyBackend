@@ -95,9 +95,10 @@ console.log("state event detected : new deleted state = " + toDelete);
 if (toDelete != true) {
     return "should not be deleted";
 }
-var users_posts_map_ref = event.data.adminRef.root.child("users_posts_map");
-var country_code_map_ref = event.data.adminRef.root.child("country_code_posts_map");
-var all_posts_map_ref = event.data.adminRef.root.child("all_posts_map");
+var baseRef =event.data.adminRef.root;
+var users_posts_map_ref = baseRef.child("mapping").child("users_posts_map");
+var country_code_map_ref = baseRef.child("mapping").child("country_code_posts_map");
+var all_posts_map_ref = baseRef.child("mapping").child("all_posts_map");
 
 
 var postMetaRef = event.data.ref.parent;
@@ -192,9 +193,11 @@ console.log(countryCode);
 var postMetaId = event.params.postMetaId;
 //console.log(postMetaId);
 //var users_posts_map_ref = event.data.ref.parent.parent.child("users_posts_map");
-var users_posts_map_ref = event.data.adminRef.root.child("users_posts_map");
-var country_code_map_ref = event.data.adminRef.root.child("country_code_posts_map");
-var all_posts_map_ref = event.data.adminRef.root.child("all_posts_map");
+var baseRef =event.data.adminRef.root;
+
+var users_posts_map_ref = baseRef.child("mapping").child("users_posts_map");
+var country_code_map_ref = baseRef.child("mapping").child("country_code_posts_map");
+var all_posts_map_ref = baseRef.child("mapping").child("all_posts_map");
 //console.log(userId, postMetaId + ' ' + users_posts_map_ref);
 if(userId==null){
     throw new Error('userId is not defiend ');
