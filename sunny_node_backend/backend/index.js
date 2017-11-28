@@ -39,13 +39,28 @@ const Storage = require('@google-cloud/storage');
 //var gcloud = require('@google-cloud');
 var gcs ;//
 var bucket;//
-const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';//config.get('CLOUD_BUCKET');
+var app_id ='friendlypix-d292b';
+var CLOUD_BUCKET = app_id;//config.get('CLOUD_BUCKET');
+var env = 'stg';
 var profileImagesLocalPath = 'profile_images/';
 
 
+var upload_resources_service = require('./upload-resources/index');
+// print process.argv
+/*process.argv.forEach(function (val, index, array) {
+    console.log(index + ': ' + val);
+});*/
+if(process.argv[2]!=null){
+    env = process.argv[2];
+}
+
+if(process.argv[3]!=null){
+    app_id = process.argv[3];
+    CLOUD_BUCKET = app_id+'.appspot.com';
+}
 
 //return;
-var homePath = expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json');
+var homePath = expandHomeDir('~/dev/private_keys/'+env+'/pk.json');
 var buildServiceAccountPath = function() {
     var promise = new Promise(function(resolve, reject){
         fs.readFile(homePath, 'utf8', function (err, data) {
@@ -66,12 +81,12 @@ var loadServiceAccountPath = function(firebaseCredResults) {
         if (!firebase.apps.length) {
             firebase.initializeApp({
                 credential: firebase.credential.cert(JSON.parse(firebaseCredResults.data)),
-                databaseURL: 'https://friendlypix-d292b.firebaseio.com'
+                databaseURL: 'https://'+app_id+'.firebaseio.com'
             });
         }
 
         gcs = Storage({
-            projectId: 'friendlypix-d292b',
+            projectId: app_id,
             keyFilename: homePath
         });
          bucket = gcs.bucket(CLOUD_BUCKET);
@@ -159,8 +174,18 @@ var scheduleDeletionMessages = function() {
     return promise;
 };
 
-
-
+var triggerUpload = function (){
+    upload_resources_service.uploadResources(firebase,bucket)
+}
+var loadResources = false;
+if(process.argv[3]!=null){
+    loadResources = process.argv[3];
+}
+if(loadResources){
+    buildServiceAccountPath()
+    .then(loadServiceAccountPath)
+    .then(triggerUpload);
+}
 buildServiceAccountPath()
     .then(loadServiceAccountPath)
     .then(scheduleDeletionPosts);
