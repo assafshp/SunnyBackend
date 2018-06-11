@@ -1,3 +1,4 @@
+/*
 // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
 const functions = require('firebase-functions');
 
@@ -13,7 +14,7 @@ admin.initializeApp(functions.config().firebase);
 // Listens for new messages added to /messages/:pushId/original and creates an
 // uppercase version of the message to /messages/:pushId/uppercase
 //exports.makeUppercase = functions.database.ref('/messages/{pushId}/original')
-/*exports.makeUppercase = functions.database.ref('/posts/{pushId}/text')
+/!*exports.makeUppercase = functions.database.ref('/posts/{pushId}/text')
         .onWrite(event => {
         // Grab the current value of what was written to the Realtime Database.
         const text = event.data.val();
@@ -25,12 +26,12 @@ const uppercase = text.toUpperCase();
 return 'foo';
 //event.data.ref.parent.child('uppercase').set(uppercase);
 })
-;*/
+;*!/
 
 
 
 const gcs = require('@google-cloud/storage')();
-//const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';
+const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';
 
 exports.followersCount = functions.database.ref("followers/{userId}/followers/{followersId}").onWrite((event) => {
     var collectionRef = event.data.ref.parent;
@@ -60,11 +61,11 @@ exports.followingsCount = functions.database.ref("followers/{userId}/following/{
     });
 });
 
-/**
+/!**
  * requirement: when user block other user - the chat id if e//todo
  * @type {boolean}
- */
-/*
+ *!/
+/!*
 
 exports.blockchats = functions.database.ref("blocks_by_user/{userId}/{blockedUserId}").onWrite((event) => {
         //var collectionRef = event.data.ref.parent;
@@ -93,7 +94,7 @@ return blockedUserRef.set({ first: 'Ada', last: 'Lovelace' })
     }
 });*!/
 });
-*/
+*!/
 
 
 
@@ -119,35 +120,27 @@ exports.blockchatsTemp = functions.database.ref("chats/conversations/{chatId}/li
 });
 //todo change to onCreate()
 exports.deletePost = functions.database.ref("posts_meta/{postMetaId}/delete").onUpdate((event) => {
-  //  var postMeta = event.data.val();// toString();
-    var toDelete = event.data.val();// toString();
+    var postMeta = event.data.val();// toString();
+    var toDelete = postMeta.delete;// toString();
     var postMetaId = event.params.postMetaId;
-
+    var countryCode = postMetaObject.countryCode;
     console.log("state event detected : new deleted state = " + toDelete);
     if (toDelete != true) {
-        return "should not be deleted";
+        return true;
     }
     var users_posts_map_ref = event.data.adminRef.root.child("users_posts_map");
     var country_code_map_ref = event.data.adminRef.root.child("country_code_posts_map");
-    var all_posts_map_ref = event.data.adminRef.root.child("all_posts_map");
 
-
-    var postMetaRef = event.data.ref.parent;
-    //console.log(postMetaRef);
-        return postMetaRef.once('value')
-        .then(postMeta => {
-            postMetaObject =postMeta.val();
-            console.log("postMetaObject : "+ JSON.stringify(postMetaObject));
-            var filePathToDelete = postMetaObject.base_storage_uri_path;
-            all_posts_map_ref.child(postMetaId).remove();
-            users_posts_map_ref.child(postMetaObject.userId).child(postMetaId).remove();
-            country_code_map_ref.child(postMetaObject.country_code).child(postMetaId).remove();
-
-            console.log("base_storage_uri_path: " + filePathToDelete);
-            //setting up bucket with path to delete
+    users_posts_map_ref.child(postMeta.userId).child(postMetaId).remove();
+    country_code_map_ref.child(countryCode).child(postMetaId).set(true);
+    var postMetaRef = event.data.ref.child("base_storage_uri_path");
+    return postMetaRef.once('value')
+        .then(base_storage_uri_path => {
+            var filePath = base_storage_uri_path.val();
+            console.log("base_storage_uri_path: " + filePath);
             const bucket = gcs.bucket(functions.config().firebase.storageBucket);
             bucket.deleteFiles({
-                prefix: filePathToDelete + "/",
+                prefix: filePath + "/",
                 force: true
             }, function (errors) {
                 if (errors != null) {
@@ -163,30 +156,22 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
     var eventData = event.data
     var postMetaObject = eventData.val();
     var userId = postMetaObject.userId;
-    console.log("postMetaObject : "+ JSON.stringify(postMetaObject));
-    var countryCode = postMetaObject.country_code;
-    console.log(countryCode);
-
+    var countryCode = postMetaObject.countryCode;
     var postMetaId = event.params.postMetaId;
-    //console.log(postMetaId);
     //var users_posts_map_ref = event.data.ref.parent.parent.child("users_posts_map");
     var users_posts_map_ref = event.data.adminRef.root.child("users_posts_map");
     var country_code_map_ref = event.data.adminRef.root.child("country_code_posts_map");
-    var all_posts_map_ref = event.data.adminRef.root.child("all_posts_map");
     //console.log(userId, postMetaId + ' ' + users_posts_map_ref);
-    if(userId==null){
+    if(userId=null){
         throw new Error('userId is not defiend ');
     }
-
-    all_posts_map_ref.child(postMetaId).set(true);
     users_posts_map_ref.child(userId).child(postMetaId).set(true);
     if(countryCode!=null){
     country_code_map_ref.child(countryCode).child(postMetaId).set(true);
     }
-    console.log("post creator userId = " + userId);
-
     return;
-    /* if(toDelete==null) {
+    console.log("post creator userId = " + userId);
+    /!* if(toDelete==null) {
          return true;
      }
      var postMetaRef = event.data.ref.parent.child("base_storage_uri_path");
@@ -204,7 +189,7 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
          }
          // `errors`:
          //    Array of errors if any occurred, otherwise null.
-     });*/
+     });*!/
 
 });
     // console.log("file path to delete : " + event.data.ref.parent.child("base_storage_uri_path").val());
@@ -214,15 +199,15 @@ exports.usersPostsMap = functions.database.ref("posts_meta/{postMetaId}").onCrea
     //      var collectionRef = event.data.ref.parent;
 //var countRef = collectionRef.parent.child('following_count');
 
-/*return countRef.transaction(function (current) {
+/!*return countRef.transaction(function (current) {
     if (event.data.exists() && !event.data.previous.exists()) {
         return (current || 0) + 1;
     }
     else if (!event.data.exists() && event.data.previous.exists()) {
         return (current || 0) - 1;
     }
-});*/
+});*!/
 
 
 //copy line shift+alt+down arrow
-//copy line
+//copy line*/

@@ -28,67 +28,33 @@ var escape = require('escape-html');
 // For other types of transports (Amazon SES, Sendgrid...) see https://nodemailer.com/2-0-0-beta/setup-transporter/
 
 var fs = require('fs')
-var expandHomeDir = require('expand-home-dir')//help to read from home path in linux filesystem
+/*var expandHomeDir = require('expand-home-dir')//help to read from home path in linux filesystem
 
 var serviceAccount ;//= require('./../firebase.json');
 const Storage = require('@google-cloud/storage');
 //var gcloud = require('@google-cloud');
 var gcs ;//
+const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';//config.get('CLOUD_BUCKET');*/
 var bucket;//
-const CLOUD_BUCKET = 'friendlypix-d292b.appspot.com';//config.get('CLOUD_BUCKET');
-var profileImagesLocalPath = 'sun_profile_images/';
+var profileImagesLocalPath = 'upload-resources/sun_profile_images/';
+var profileImagesRemotePath = 'profile_images/';
 
+ async function upload_resources(pFirebase,pBucket){
+     firebase=pFirebase;
+     bucket = pBucket;
+    await console.log("start upload_resources");
+    await uploadProfileImagesFull('1001');
+    await uploadProfileImagesFull('1002');
+    await uploadProfileImagesFull('1003');
+    await uploadProfileImagesFull('1004');
+    await uploadProfileImagesFull('1005');
+    await uploadProfileImagesFull('1006');
+    await uploadProfileImagesFull('1007');
+    await uploadProfileImagesFull('1008');
+    await uploadProfileImagesFull('1009');
+    return;
+}
 
-
-//return;
-var homePath = expandHomeDir('~/dev/friendlypix-d292b-firebase-adminsdk-1bflr-6b9fac5cd7.json');
-var buildServiceAccountPath = function() {
-    var promise = new Promise(function(resolve, reject){
-        fs.readFile(homePath, 'utf8', function (err, data) {
-            if (err) {
-                reject(console.log(err));
-            }
-
-            console.log("loaded cred json from file system")
-            resolve({data: data});
-        });
-    });
-    return promise;
-};
-
-
-var loadServiceAccountPath = function(firebaseCredResults) {
-    var promise = new Promise(function(resolve, reject){
-        if (!firebase.apps.length) {
-            firebase.initializeApp({
-                credential: firebase.credential.cert(JSON.parse(firebaseCredResults.data)),
-                databaseURL: 'https://friendlypix-d292b.firebaseio.com'
-            });
-        }
-
-        gcs = Storage({
-            projectId: 'friendlypix-d292b',
-            keyFilename: homePath
-        });
-         bucket = gcs.bucket(CLOUD_BUCKET);
-
-
-        //is fire loaded? if not stop the process
-        if(firebase.apps.length ) {
-            console.log("firebase loaded");
-            resolve("foo")
-        }
-        else {
-            console.log("failed to load firebase");
-            reject(process.exit())
-        }
-      /*  bucket.upload(profileImagesLocalPath+'foo.txt', function(err, file) {
-            if (err)
-                throw new Error(err);
-        });*/
-    });
-    return promise;
-};
 var uploadProfileImagesFull =async function(index) {
      var uploadFiles= new Promise(function(resolve, reject){
 
@@ -99,7 +65,7 @@ var uploadProfileImagesFull =async function(index) {
        // fs.readdirSync(fullImagesPath ).forEach(file => {
             console.log('profileIamge full detected :'+file);
         //https://googlecloudplatform.github.io/google-cloud-node/#/docs/storage/0.8.0/storage/bucket?method=upload
-        var destInStorage =  'profile_images/'+file;
+        var destInStorage =  profileImagesRemotePath+'full'+file;
         var options = {
             destination: destInStorage ,
 
@@ -152,7 +118,7 @@ var uploadProfileImagesThumb =  function(object) {
             //console.log('profileIamge thumb detected :'+file);
         var fileToUpload = object.file;
         var index = object.index;
-    var destInStorage =  thumbImagesPath+fileToUpload;
+    var destInStorage =  profileImagesRemotePath+'thumb'+fileToUpload;
     var options = {
             destination: destInStorage ,
 
@@ -223,28 +189,11 @@ var updateFirebaseDB =function updateFirebaseDB(object){
 });
 }
 
-var foo = async function () {
-    await uploadProfileImagesFull('1001');
-    await uploadProfileImagesFull('1002');
-    await uploadProfileImagesFull('1003');
-    await uploadProfileImagesFull('1004');
-    await uploadProfileImagesFull('1005');
-    await uploadProfileImagesFull('1006');
-    await uploadProfileImagesFull('1007');
-    await uploadProfileImagesFull('1008');
-    await uploadProfileImagesFull('1009');
-    return;
-    await uploadProfileImagesFull('1002');
-    await uploadProfileImagesFull('1002');
-    await uploadProfileImagesFull('1002');
-    await uploadProfileImagesFull('1002');
-}
 
-buildServiceAccountPath()
-    .then(loadServiceAccountPath)
-    .then(foo);
-   // .then(uploadProfileImagesThumb);
 
-    //.then(uploadProfileImagesThumb);
-return;
-
+module.exports = {
+    uploadResources: upload_resources,
+    test: function() {
+        console.log('var is', this.firebase);
+    }
+};

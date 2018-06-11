@@ -21,3 +21,18 @@ options to uploads to gcp https://googlecloudplatform.github.io/google-cloud-nod
 https://cloud.google.com/storage/docs/object-basics
 firebase function al smaples https://github.com/firebase/functions-samples
 firebase deploy --only functions:addMessage
+
+deploy backend :
+https://firebase.google.com/docs/cli/
+
+add alias :
+firebase use --add
+
+firebase use <alias_or_project_id>
+
+deploy all:
+firebase deploy
+
+
+rest deploy data :
+curl -X PUT -d @sunny_ask_data   'https://friendlypix-d292b.firebaseio.com/rest/sunny_ask_data.json'

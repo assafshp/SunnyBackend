@@ -1,0 +1,47 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    // ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "posts": {
+      "$id": {
+        ".write": "!data.exists() || data.child('author').child('uid').val() == auth.uid"
+      }
+    },
+    "chats": {
+      "$path": {
+        ".write": "$path != 'messages-meta' "
+
+      },
+      "messages-meta": {
+        "$id": {
+          ".write": "newData.child('chatId').val()!=null && root.child('chats').child('conversations').child(newData.child('chatId').val()).child('blocked').val() != true"
+        }
+      }
+    }
+  ,
+    "$path": {
+      ".write": "$path != 'posts' || $path != 'users' "
+
+    }
+
+
+    //test-deploy
+    // ".write": "auth != null"//"!data.exists() "
+
+    //|| data.child('author').child('uid').val() == auth.uid
+    // "$postId": //{
+    //  ".write": "root.child('posts').child($postId).child('author').child('uid').val()==auth.uid || newData.child('author').child('uid').val()==auth.uid"
+    //  ".write": "data.child('author').child('uid').val()==auth.uid"
+    //
+    //".write": "!data.exists() "
+    //".write": "auth.uid == root.child('posts/'+$post_id+'/author/'+'uid').val()",
+    //&& data.child('uid').val()==auth.uid
+    ////                ".write": "(auth.uid=!'dfdf' || newData.child('author').child('uid').exists() ) || (newData.child('uid').val()==auth.uid || newData.child('author').child('uid').val()==auth.uid)"
+
+  }
+}

@@ -1,0 +1,27 @@
+// Returns true if the given UID matches the signed in UID,
+// the uploaded file is an image and its size is below the given number of MB.
+// Also allow deletes.
+function isFileAllowAndBelowMaxSize(uid, maxSizeMB) {
+  return request.auth.uid == uid
+      && (request.resource == null // Allow deletes
+          || request.resource.size < maxSizeMB * 1024 * 1024 // Max size for the uploaded file
+              && (request.resource.contentType.matches('image/.*') // The file is an image
+              || request.resource.contentType.matches('video/mp4')) )
+}
+
+//dont forget to add isFileAllowAndBelowMaxSize() with smaller size for thumbnails
+
+
+// Grants a user access to a node matching their user ID
+service firebase.storage {
+  match /b/friendlypix-d292b.appspot.com/o {
+    // Files look like: "user/<UID>/path/to/file.txt"
+    match /users_uploads/{postsType}/{userId}/{allPaths=**} {
+      allow write: if request.auth.uid == userId && isFileAllowAndBelowMaxSize(userId, 30);
+      allow read: if request.auth != null;
+    }
+    match /resources/{allPaths=**} {
+      allow read//: if request.auth != null && isFileAllowAndBelowMaxSize(userId, 30);
+    }
+  }
+}
