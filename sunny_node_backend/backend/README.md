@@ -1,12 +1,9 @@
 Firebase Node.js Realtime Database Quickstart
 ==========================================
 
-The Node.js Firebase Database quickstart demonstrates how to connect to and use the Firebase Realtime Database using Node.js through a simple social blogging app. It will interoperate with the Web, iOS and Android database quickstarts.
-
-This server will:
- - Update the star counts for all posts.
- - Send email notifications when a post has been starred.
- - Send weekly emails listing top post.
+NodeJS server for simpale scheduled operations such :
+- mark post as delete candidate
+- 
 
 Introduction
 ------------
