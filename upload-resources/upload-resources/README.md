@@ -1,3 +1,7 @@
+
+
+DEPRECATED - use sunny_backend_modules instead
+
 Firebase Node.js Realtime Database Quickstart
 ==========================================
 

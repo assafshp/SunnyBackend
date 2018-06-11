@@ -178,8 +178,8 @@ var triggerUpload = function (){
     upload_resources_service.uploadResources(firebase,bucket)
 }
 var loadResources = false;
-if(process.argv[3]!=null){
-    loadResources = process.argv[3];
+if(process.argv[4]!=null){
+    loadResources = (process.argv[4] === 'true');
 }
 if(loadResources){
     buildServiceAccountPath()
