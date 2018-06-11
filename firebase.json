@@ -1,8 +1,8 @@
 {
   "database": {
-    "rules": "rules/database-rules.json"
+    "rules": "firebase-rules/database-rules.json"
   },
   "storage": {
-    "rules": "rules/storage.rules"
+    "rules": "firebase-rules/storage.rules"
   }
 }
